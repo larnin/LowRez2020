@@ -7,7 +7,9 @@
 		_Crack("Cracks", 2D) = "white" {}
 		_CrackPower("CrackPower", float) = 1
 		_BorderSize("BorderSize", float) = 0.1
-		_Percent("Percent", Range(0, 2)) = 0
+		_EffectPower("Power", float) = 1
+		_EffectOffset("Offset", float) = 0
+		_Percent("Percent", Range(0, 1)) = 0
 		_PortalPos("PortalPos", Vector) = (0, 0, 0, 0)
     }
     SubShader
@@ -42,6 +44,8 @@
 			float _CrackPower;
 			float _BorderSize;
 			float4 _Crack_ST;
+			float _EffectPower;
+			float _EffectOffset;
 			float _Percent;
 			float4 _PortalPos;
 
@@ -58,14 +62,20 @@
 				float x = i.uv.x - _PortalPos.x;
 				float y = i.uv.y - _PortalPos.y;
 
-				float offset = tex2D(_Crack, i.uv).r * _CrackPower;
+				float2 crackUV = i.uv / 2;
+				crackUV.x += (1 - _PortalPos.x) / 2;
+				crackUV.y += (1 - _PortalPos.y) / 2;
+
+				float offset = tex2D(_Crack, crackUV).r * _CrackPower;
 
 				float dist = sqrt(x * x + y * y) + offset;
 
-				float delta = abs(dist - _Percent);
+				float percent = _Percent * _EffectPower + _EffectOffset;
+
+				float delta = abs(dist - percent);
 
                 fixed4 col = tex2D(_MainTex, i.uv);
-				if (dist < _Percent)
+				if (dist < percent)
 					col = tex2D(_SecondTex, i.uv);
 				if (delta < _BorderSize)
 					col = fixed4( 0, 0, 0, 1 );
