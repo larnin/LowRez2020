@@ -88,4 +88,4 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _PortalPos: {r: 0.18154931, g: 0.71256274, b: 0, a: 0}
+    - _PortalPos: {r: 0.8324053, g: 0.5799999, b: 0, a: 0}

@@ -6,6 +6,11 @@ public class PlayerControler : MonoBehaviour
     const string horizontal = "Horizontal";
     const string jump = "Jump";
 
+    const string runProperty = "Run";
+    const string leftProperty = "Left";
+    const string jumpProperty = "Jump";
+    const string groundedProperty = "Grounded";
+
     [SerializeField] float m_threshold = 0.1f;
     [SerializeField] float m_maxSpeed = 2;
     [SerializeField] float m_acceleration = 5;
@@ -17,14 +22,18 @@ public class PlayerControler : MonoBehaviour
     [SerializeField] float m_capedFallSpeed = 5;
 
     Rigidbody2D m_rigidbody = null;
+    Animator m_animator = null;
 
     bool m_grounded = false;
 
     float m_jumpPressDelay = 0;
 
+    bool m_direction = true; //left
+
     void Start()
     {
         m_rigidbody = GetComponent<Rigidbody2D>();
+        m_animator = GetComponent<Animator>();
 
         Event<AddClampEntityEvent>.Broadcast(new AddClampEntityEvent(gameObject, ClampEntityUpdateType.FixedUpdate));
     }
@@ -70,6 +79,15 @@ public class PlayerControler : MonoBehaviour
                 velocity.x = targetSpeed;
         }
 
+        if (Mathf.Abs(velocity.x) > 0.1f)
+        {
+            m_direction = velocity.x < 0;
+
+            m_animator.SetBool(leftProperty, m_direction);
+            m_animator.SetBool(runProperty, true);
+        }
+        else m_animator.SetBool(runProperty, false);
+
         m_rigidbody.velocity = velocity;
     }
 
@@ -107,6 +125,8 @@ public class PlayerControler : MonoBehaviour
         velocity.y = m_jumpPower;
 
         m_rigidbody.velocity = velocity;
+
+        m_animator.SetTrigger(jumpProperty);
     }
 
     void UpdateGround()
@@ -117,6 +137,8 @@ public class PlayerControler : MonoBehaviour
         if (collider == null)
             transform.parent = null;
         else transform.parent = collider.transform;
+
+        m_animator.SetBool(groundedProperty, m_grounded);
     }
 
     void CapFall()
