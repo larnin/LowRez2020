@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class ClampEntities : MonoBehaviour
 {
+    [SerializeField] List<GameObject> m_zones = new List<GameObject>();
+
     [SerializeField] float m_worldSize = 8;
 
     SubscriberList m_subscriberList = new SubscriberList();
@@ -54,9 +56,28 @@ public class ClampEntities : MonoBehaviour
     {
         list.RemoveAll(x => { return x == null; });
 
+        if (m_zones.Count == 0)
+            return;
+
         foreach(var e in list)
         {
             var pos = e.transform.position;
+
+            var target = Vector3.zero;
+            float dist = float.MaxValue;
+            foreach(var z in m_zones)
+            {
+                var zPos = z.transform.position;
+                float zDist = (pos - zPos).sqrMagnitude;
+                if (zDist < dist)
+                {
+                    target = zPos;
+                    dist = zDist;
+                }
+            }
+
+            pos -= target;
+
             pos.x += m_worldSize / 2;
             pos.y += m_worldSize / 2;
 
@@ -70,6 +91,8 @@ public class ClampEntities : MonoBehaviour
 
             pos.x -= m_worldSize / 2;
             pos.y -= m_worldSize / 2;
+
+            pos += target;
 
             e.transform.position = pos;
         }
