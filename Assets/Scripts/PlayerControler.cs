@@ -9,7 +9,7 @@ public class PlayerControler : MonoBehaviour
     const string runProperty = "Run";
     const string leftProperty = "Left";
     const string jumpProperty = "Jump";
-    const string groundedProperty = "Grounded";
+    const string fallProperty = "Fall";
 
     [SerializeField] float m_threshold = 0.1f;
     [SerializeField] float m_maxSpeed = 2;
@@ -138,7 +138,9 @@ public class PlayerControler : MonoBehaviour
             transform.parent = null;
         else transform.parent = collider.transform;
 
-        m_animator.SetBool(groundedProperty, m_grounded);
+        var velocity = m_rigidbody.velocity;
+
+        m_animator.SetBool(fallProperty, !m_grounded && velocity.y < 0);
     }
 
     void CapFall()
@@ -149,5 +151,15 @@ public class PlayerControler : MonoBehaviour
             velocity.y = -m_capedFallSpeed;
 
         m_rigidbody.velocity = velocity;
+    }
+
+    public bool IsLeft()
+    {
+        return m_direction;
+    }
+
+    public void Hit()
+    {
+        Debug.Log("Player hit !");
     }
 }
